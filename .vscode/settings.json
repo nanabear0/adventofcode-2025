@@ -1,4 +1,3 @@
 {
-    "zig.buildOnSave": true,
-    "zig.zls.enableBuildOnSave": true
+    "zig.buildOnSaveProvider": "zls"
 }
