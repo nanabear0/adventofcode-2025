@@ -3,17 +3,7 @@ const std = @import("std");
 const input = std.mem.trim(u8, @embedFile("inputs/day03.txt"), "\n");
 
 fn findLargest(line: []const u8, remainingSize: usize) usize {
-    var max: usize = 0;
-    var target: usize = 0;
-    for (line[0 .. line.len - remainingSize + 1], 0..) |c, i| {
-        const num = c - '0';
-        if (num > max) {
-            target = i;
-            max = num;
-        }
-    }
-
-    return target;
+    return std.mem.indexOfMax(u8, line[0 .. line.len - remainingSize + 1]);
 }
 
 fn find(line: []const u8, size: usize) usize {
