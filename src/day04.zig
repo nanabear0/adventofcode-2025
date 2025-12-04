@@ -1,6 +1,6 @@
 const std = @import("std");
 const Point = @import("utils.zig").Point;
-const Neighbours = @import("utils.zig").Neighbours;
+const NeighbourDirections = @import("utils.zig").NeighbourDirections;
 
 const input = std.mem.trim(u8, @embedFile("inputs/day04.txt"), "\n");
 
@@ -25,7 +25,7 @@ fn part01() !void {
     var nodeIter = map.keyIterator();
     while (nodeIter.next()) |node| {
         var neighbourCount: usize = 0;
-        for (Neighbours) |neighbour| {
+        for (NeighbourDirections) |neighbour| {
             if (map.contains(node.add(neighbour))) neighbourCount += 1;
         }
 
@@ -58,7 +58,7 @@ fn part02() !void {
         var nodes = map.keyIterator();
         while (nodes.next()) |node| {
             var neighbourCount: usize = 0;
-            for (Neighbours) |neighbour| {
+            for (NeighbourDirections) |neighbour| {
                 if (map.contains(node.add(neighbour))) neighbourCount += 1;
             }
 

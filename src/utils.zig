@@ -25,7 +25,7 @@ pub const CardinalDirections = [4]Point{
     Point{ .x = -1, .y = 0 },
 };
 
-pub const Neighbours = [8]Point{
+pub const NeighbourDirections = [8]Point{
     Point{ .x = -1, .y = -1 },
     Point{ .x = 0, .y = -1 },
     Point{ .x = 1, .y = -1 },
