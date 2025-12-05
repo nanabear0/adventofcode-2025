@@ -5,40 +5,17 @@ const input = std.mem.trim(u8, @embedFile("inputs/day05.txt"), "\n");
 var gpa_impl = std.heap.DebugAllocator(.{}){};
 const gpa = gpa_impl.allocator();
 
-fn part01() !void {
-    const splitPoint = std.mem.indexOf(u8, input, "\n\n") orelse unreachable;
-    var lines = std.mem.splitScalar(u8, input[0..splitPoint], '\n');
-
-    var ranges = std.ArrayList([2]usize).init(gpa);
-    defer ranges.deinit();
-
-    while (lines.next()) |line| {
-        const divider = std.mem.indexOfScalar(u8, line, '-') orelse unreachable;
-        const left = try std.fmt.parseInt(usize, line[0..divider], 10);
-        const right = try std.fmt.parseInt(usize, line[divider + 1 ..], 10);
-        try ranges.append([2]usize{ left, right });
-    }
-
-    var result: usize = 0;
-    lines = std.mem.splitScalar(u8, input[splitPoint + 2 ..], '\n');
-    while (lines.next()) |line| {
-        const num = try std.fmt.parseInt(usize, line, 10);
-        for (ranges.items) |range| {
-            if (num > range[0] and num <= range[1]) {
-                result += 1;
-                break;
-            }
-        }
-    }
-
-    std.debug.print("part 01: {}\n", .{result});
-}
-fn part02() !void {
+fn doThing() !void {
     const splitPoint = std.mem.indexOf(u8, input, "\n\n") orelse unreachable;
     var lines = std.mem.splitScalar(u8, input[0..splitPoint], '\n');
 
     var ranges = std.AutoHashMap([2]usize, void).init(gpa);
+    try ranges.ensureTotalCapacity(200);
     defer ranges.deinit();
+
+    var finished = std.AutoHashMap([2]usize, void).init(gpa);
+    try finished.ensureTotalCapacity(ranges.count());
+    defer finished.deinit();
 
     while (lines.next()) |line| {
         const divider = std.mem.indexOfScalar(u8, line, '-') orelse unreachable;
@@ -64,22 +41,38 @@ fn part02() !void {
                 }, {});
                 continue :main;
             }
+            _ = ranges.remove(first.*);
+            try finished.put(first.*, {});
         }
 
         break :main;
     }
 
-    var result: usize = 0;
-    var rangeIter = ranges.keyIterator();
-    while (rangeIter.next()) |range| {
-        result += range[1] - range[0] + 1;
+    var p2: usize = 0;
+    var finishedIter = finished.keyIterator();
+    while (finishedIter.next()) |range| {
+        p2 += range[1] - range[0] + 1;
     }
 
-    std.debug.print("part 02: {}\n", .{result});
+    var p1: usize = 0;
+    lines = std.mem.splitScalar(u8, input[splitPoint + 2 ..], '\n');
+    while (lines.next()) |line| {
+        const num = try std.fmt.parseInt(usize, line, 10);
+
+        finishedIter = finished.keyIterator();
+        while (finishedIter.next()) |range| {
+            if (num > range[0] and num <= range[1]) {
+                p1 += 1;
+                break;
+            }
+        }
+    }
+
+    std.debug.print("part 01: {}\n", .{p1});
+    std.debug.print("part 02: {}\n", .{p2});
 }
 
 pub fn day05() void {
     std.debug.print("-day05-\n", .{});
-    part01() catch unreachable;
-    part02() catch unreachable;
+    doThing() catch unreachable;
 }
