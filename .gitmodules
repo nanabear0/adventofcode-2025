@@ -1,0 +1,3 @@
+[submodule "src/inputs"]
+	path = src/inputs
+	url = https://github.com/nanabear0/adventofcode-2025-inputs.git
