@@ -8,11 +8,11 @@ const gpa = gpa_impl.allocator();
 fn part01() !void {
     var lines = std.mem.splitScalar(u8, input, '\n');
 
-    var operations = std.ArrayList(std.ArrayList(usize)).init(gpa);
-    defer operations.deinit();
+    var operations = try std.ArrayList(std.ArrayList(usize)).initCapacity(gpa, 1000);
+    defer operations.deinit(gpa);
     defer {
-        for (operations.items) |item| {
-            item.deinit();
+        for (operations.items) |*item| {
+            item.deinit(gpa);
         }
     }
     var result: usize = 0;
@@ -27,8 +27,8 @@ fn part01() !void {
                 }
                 result += acc;
             } else {
-                if (operations.items.len <= i) try operations.append(std.ArrayList(usize).init(gpa));
-                try operations.items[i].append(try std.fmt.parseInt(usize, token, 10));
+                if (operations.items.len <= i) try operations.append(gpa, try std.ArrayList(usize).initCapacity(gpa, 4));
+                try operations.items[i].append(gpa, try std.fmt.parseInt(usize, token, 10));
             }
         }
     }
@@ -39,20 +39,20 @@ fn part01() !void {
 fn part02() !void {
     var linesIter = std.mem.splitScalar(u8, input, '\n');
 
-    var lines = std.ArrayList([]const u8).init(gpa);
-    defer lines.deinit();
+    var lines = try std.ArrayList([]const u8).initCapacity(gpa, 6);
+    defer lines.deinit(gpa);
     while (linesIter.next()) |line| {
-        try lines.append(line);
+        try lines.append(gpa, line);
     }
 
-    var operatorIndexes = std.ArrayList(usize).init(gpa);
-    defer operatorIndexes.deinit();
+    var operatorIndexes = try std.ArrayList(usize).initCapacity(gpa, 1000);
+    defer operatorIndexes.deinit(gpa);
     for (lines.getLast(), 0..) |c, i| {
         if (c == '*' or c == '+') {
-            try operatorIndexes.append(i);
+            try operatorIndexes.append(gpa, i);
         }
     }
-    try operatorIndexes.append(lines.getLast().len + 1);
+    try operatorIndexes.append(gpa, lines.getLast().len + 1);
 
     var result: usize = 0;
     var windowIter = std.mem.window(usize, operatorIndexes.items, 2, 1);
