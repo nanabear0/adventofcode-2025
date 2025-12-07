@@ -30,31 +30,31 @@ fn doThing() !void {
 
     var splits: usize = 0;
     var timelines: usize = 0;
-    var nextbiimu = std.AutoHashMap(Point, usize).init(gpa);
-    defer nextbiimu.deinit();
+    var nextbeams = std.AutoHashMap(Point, usize).init(gpa);
+    defer nextbeams.deinit();
     while (beams.count() > 0) {
-        defer nextbiimu.clearRetainingCapacity();
+        defer nextbeams.clearRetainingCapacity();
 
-        var biimuIter = beams.iterator();
-        while (biimuIter.next()) |beam| {
+        var beamIter = beams.iterator();
+        while (beamIter.next()) |beam| {
             const next = beam.key_ptr.add(Down);
             const nextValue = map.get(next);
             if (nextValue == null) {
                 timelines += beam.value_ptr.*;
                 continue;
             } else if (nextValue.? == '.') {
-                const ov = try nextbiimu.getOrPutValue(next, 0);
+                const ov = try nextbeams.getOrPutValue(next, 0);
                 ov.value_ptr.* += beam.value_ptr.*;
             } else if (nextValue.? == '^') {
-                var ov = try nextbiimu.getOrPutValue(next.add(Left), 0);
+                var ov = try nextbeams.getOrPutValue(next.add(Left), 0);
                 ov.value_ptr.* += beam.value_ptr.*;
-                ov = try nextbiimu.getOrPutValue(next.add(Right), 0);
+                ov = try nextbeams.getOrPutValue(next.add(Right), 0);
                 ov.value_ptr.* += beam.value_ptr.*;
                 splits += 1;
             }
         }
 
-        std.mem.swap(std.AutoHashMap(Point, usize), &beams, &nextbiimu);
+        std.mem.swap(std.AutoHashMap(Point, usize), &beams, &nextbeams);
     }
 
     std.debug.print("part 01: {}\n", .{splits});
