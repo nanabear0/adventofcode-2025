@@ -18,14 +18,14 @@ pub const Point = struct {
     }
 };
 
-pub const CardinalDirections = [4]Point{
+pub const cardinal_directions = [4]Point{
     Point{ .x = 0, .y = -1 },
     Point{ .x = 1, .y = 0 },
     Point{ .x = 0, .y = 1 },
     Point{ .x = -1, .y = 0 },
 };
 
-pub const NeighbourDirections = [8]Point{
+pub const neighbour_directions = [8]Point{
     Point{ .x = -1, .y = -1 },
     Point{ .x = 0, .y = -1 },
     Point{ .x = 1, .y = -1 },
@@ -40,10 +40,10 @@ pub const Vector = struct {
     point: Point,
     dir: u3,
     pub fn move(self: *const Vector) Vector {
-        return Vector{ .point = self.point.add(CardinalDirections[self.dir]), .dir = self.dir };
+        return Vector{ .point = self.point.add(cardinal_directions[self.dir]), .dir = self.dir };
     }
     pub fn moveReverse(self: *const Vector) Vector {
-        return Vector{ .point = self.point.subtract(CardinalDirections[self.dir]), .dir = self.dir };
+        return Vector{ .point = self.point.subtract(cardinal_directions[self.dir]), .dir = self.dir };
     }
     pub fn turnRight(self: *const Vector) Vector {
         return Vector{ .point = self.point, .dir = (self.dir + 1) % 4 };

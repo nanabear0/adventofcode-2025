@@ -1,9 +1,9 @@
 const std = @import("std");
 const Point = @import("utils.zig").Point;
 
-const Down = Point{ .x = 0, .y = 1 };
-const Right = Point{ .x = 1, .y = 0 };
-const Left = Point{ .x = -1, .y = 0 };
+const down = Point{ .x = 0, .y = 1 };
+const right = Point{ .x = 1, .y = 0 };
+const left = Point{ .x = -1, .y = 0 };
 
 const input = std.mem.trim(u8, @embedFile("inputs/day07.txt"), "\n");
 
@@ -11,50 +11,50 @@ var gpa_impl = std.heap.DebugAllocator(.{}){};
 const gpa = gpa_impl.allocator();
 
 fn doThing() !void {
-    var linesIter = std.mem.splitScalar(u8, input, '\n');
+    var lines_iter = std.mem.splitScalar(u8, input, '\n');
 
     var map = std.AutoHashMap(Point, u8).init(gpa);
     defer map.deinit();
 
-    var beams = std.AutoHashMap(Point, usize).init(gpa);
-    defer beams.deinit();
+    var biimus = std.AutoHashMap(Point, usize).init(gpa);
+    defer biimus.deinit();
     var y: isize = 0;
-    while (linesIter.next()) |line| : (y += 1) {
+    while (lines_iter.next()) |line| : (y += 1) {
         for (line, 0..) |c, x| {
             try map.put(Point{ .x = @intCast(x), .y = y }, c);
             if (c == 'S') {
-                try beams.put(Point{ .x = @intCast(x), .y = y }, 1);
+                try biimus.put(Point{ .x = @intCast(x), .y = y }, 1);
             }
         }
     }
 
     var splits: usize = 0;
     var timelines: usize = 0;
-    var nextbeams = std.AutoHashMap(Point, usize).init(gpa);
-    defer nextbeams.deinit();
-    while (beams.count() > 0) {
-        defer nextbeams.clearRetainingCapacity();
+    var biimus_next = std.AutoHashMap(Point, usize).init(gpa);
+    defer biimus_next.deinit();
+    while (biimus.count() > 0) {
+        defer biimus_next.clearRetainingCapacity();
 
-        var beamIter = beams.iterator();
-        while (beamIter.next()) |beam| {
-            const next = beam.key_ptr.add(Down);
-            const nextValue = map.get(next);
-            if (nextValue == null) {
+        var biimu_iter = biimus.iterator();
+        while (biimu_iter.next()) |beam| {
+            const next = beam.key_ptr.add(down);
+            const next_value = map.get(next);
+            if (next_value == null) {
                 timelines += beam.value_ptr.*;
                 continue;
-            } else if (nextValue.? == '.') {
-                const ov = try nextbeams.getOrPutValue(next, 0);
-                ov.value_ptr.* += beam.value_ptr.*;
-            } else if (nextValue.? == '^') {
-                var ov = try nextbeams.getOrPutValue(next.add(Left), 0);
-                ov.value_ptr.* += beam.value_ptr.*;
-                ov = try nextbeams.getOrPutValue(next.add(Right), 0);
-                ov.value_ptr.* += beam.value_ptr.*;
+            } else if (next_value.? == '.') {
+                const entry = try biimus_next.getOrPutValue(next, 0);
+                entry.value_ptr.* += beam.value_ptr.*;
+            } else if (next_value.? == '^') {
+                var entry = try biimus_next.getOrPutValue(next.add(left), 0);
+                entry.value_ptr.* += beam.value_ptr.*;
+                entry = try biimus_next.getOrPutValue(next.add(right), 0);
+                entry.value_ptr.* += beam.value_ptr.*;
                 splits += 1;
             }
         }
 
-        std.mem.swap(std.AutoHashMap(Point, usize), &beams, &nextbeams);
+        std.mem.swap(std.AutoHashMap(Point, usize), &biimus, &biimus_next);
     }
 
     std.debug.print("part 01: {}\n", .{splits});

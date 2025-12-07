@@ -1,6 +1,6 @@
 const std = @import("std");
 const Point = @import("utils.zig").Point;
-const NeighbourDirections = @import("utils.zig").NeighbourDirections;
+const neighbour_directions = @import("utils.zig").neighbour_directions;
 
 const input = std.mem.trim(u8, @embedFile("inputs/day04.txt"), "\n");
 
@@ -22,14 +22,14 @@ fn part01() !void {
     }
 
     var result: usize = 0;
-    var nodeIter = map.keyIterator();
-    while (nodeIter.next()) |node| {
-        var neighbourCount: usize = 0;
-        for (NeighbourDirections) |neighbour| {
-            if (map.contains(node.add(neighbour))) neighbourCount += 1;
+    var node_iter = map.keyIterator();
+    while (node_iter.next()) |node| {
+        var neighbour_count: usize = 0;
+        for (neighbour_directions) |neighbour| {
+            if (map.contains(node.add(neighbour))) neighbour_count += 1;
         }
 
-        if (neighbourCount < 4) result += 1;
+        if (neighbour_count < 4) result += 1;
     }
 
     std.debug.print("part 01: {}\n", .{result});
@@ -49,25 +49,25 @@ fn part02() !void {
     }
 
     var result: usize = 0;
-    var nodesToRemove = std.AutoHashMap(Point, void).init(gpa);
-    defer nodesToRemove.deinit();
+    var nodes_to_remove = std.AutoHashMap(Point, void).init(gpa);
+    defer nodes_to_remove.deinit();
 
     while (true) {
-        defer nodesToRemove.clearRetainingCapacity();
+        defer nodes_to_remove.clearRetainingCapacity();
 
         var nodes = map.keyIterator();
         while (nodes.next()) |node| {
-            var neighbourCount: usize = 0;
-            for (NeighbourDirections) |neighbour| {
-                if (map.contains(node.add(neighbour))) neighbourCount += 1;
+            var neighbour_count: usize = 0;
+            for (neighbour_directions) |neighbour| {
+                if (map.contains(node.add(neighbour))) neighbour_count += 1;
             }
 
-            if (neighbourCount < 4) try nodesToRemove.put(node.*, {});
+            if (neighbour_count < 4) try nodes_to_remove.put(node.*, {});
         }
-        if (nodesToRemove.count() == 0) break;
+        if (nodes_to_remove.count() == 0) break;
 
-        var removeIter = nodesToRemove.keyIterator();
-        while (removeIter.next()) |nodeToRemove| {
+        var remove_iter = nodes_to_remove.keyIterator();
+        while (remove_iter.next()) |nodeToRemove| {
             _ = map.remove(nodeToRemove.*);
             result += 1;
         }

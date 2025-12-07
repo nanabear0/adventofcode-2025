@@ -6,8 +6,8 @@ var gpa_impl = std.heap.DebugAllocator(.{}){};
 const gpa = gpa_impl.allocator();
 
 fn doThing() !void {
-    const splitPoint = std.mem.indexOf(u8, input, "\n\n") orelse unreachable;
-    var lines = std.mem.splitScalar(u8, input[0..splitPoint], '\n');
+    const split_point = std.mem.indexOf(u8, input, "\n\n") orelse unreachable;
+    var lines = std.mem.splitScalar(u8, input[0..split_point], '\n');
 
     var ranges = std.AutoHashMap([2]usize, void).init(gpa);
     try ranges.ensureTotalCapacity(200);
@@ -25,10 +25,10 @@ fn doThing() !void {
     }
 
     main: while (true) {
-        var firstIter = ranges.keyIterator();
-        while (firstIter.next()) |first| {
-            var secondIter = ranges.keyIterator();
-            while (secondIter.next()) |second| {
+        var first_iter = ranges.keyIterator();
+        while (first_iter.next()) |first| {
+            var second_iter = ranges.keyIterator();
+            while (second_iter.next()) |second| {
                 if (first == second or first[1] < second[0] or first[0] > second[1]) {
                     continue;
                 }
@@ -49,18 +49,18 @@ fn doThing() !void {
     }
 
     var p2: usize = 0;
-    var finishedIter = finished.keyIterator();
-    while (finishedIter.next()) |range| {
+    var finished_iter = finished.keyIterator();
+    while (finished_iter.next()) |range| {
         p2 += range[1] - range[0] + 1;
     }
 
     var p1: usize = 0;
-    lines = std.mem.splitScalar(u8, input[splitPoint + 2 ..], '\n');
+    lines = std.mem.splitScalar(u8, input[split_point + 2 ..], '\n');
     while (lines.next()) |line| {
         const num = try std.fmt.parseInt(usize, line, 10);
 
-        finishedIter = finished.keyIterator();
-        while (finishedIter.next()) |range| {
+        finished_iter = finished.keyIterator();
+        while (finished_iter.next()) |range| {
             if (num > range[0] and num <= range[1]) {
                 p1 += 1;
                 break;

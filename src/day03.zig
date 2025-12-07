@@ -10,9 +10,9 @@ fn find(line: []const u8, size: usize) usize {
     var last: usize = 0;
     var result: usize = 0;
     for (0..size) |i| {
-        const nextLargest = findLargest(line[last..], size - i);
-        result = result * 10 + (line[last + nextLargest] - '0');
-        last += nextLargest + 1;
+        const next_largest = findLargest(line[last..], size - i);
+        result = result * 10 + (line[last + next_largest] - '0');
+        last += next_largest + 1;
     }
 
     return result;

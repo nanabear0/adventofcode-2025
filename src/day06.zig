@@ -6,7 +6,7 @@ var gpa_impl = std.heap.DebugAllocator(.{}){};
 const gpa = gpa_impl.allocator();
 
 fn part01() !void {
-    var lines = std.mem.splitScalar(u8, input, '\n');
+    var lines_iter = std.mem.splitScalar(u8, input, '\n');
 
     var operations = try std.ArrayList(std.ArrayList(usize)).initCapacity(gpa, 1000);
     defer operations.deinit(gpa);
@@ -16,11 +16,11 @@ fn part01() !void {
         }
     }
     var result: usize = 0;
-    while (lines.next()) |line| {
+    while (lines_iter.next()) |line| {
         var tokens = std.mem.tokenizeScalar(u8, line, ' ');
         var i: usize = 0;
         while (tokens.next()) |token| : (i += 1) {
-            if (lines.peek() == null) {
+            if (lines_iter.peek() == null) {
                 var acc: usize = if (token[0] == '*') 1 else 0;
                 for (operations.items[i].items) |num| {
                     acc = if (token[0] == '*') acc * num else acc + num;
@@ -37,25 +37,25 @@ fn part01() !void {
 }
 
 fn part02() !void {
-    var linesIter = std.mem.splitScalar(u8, input, '\n');
+    var lines_iter = std.mem.splitScalar(u8, input, '\n');
 
     var lines = try std.ArrayList([]const u8).initCapacity(gpa, 6);
     defer lines.deinit(gpa);
-    while (linesIter.next()) |line| {
+    while (lines_iter.next()) |line| {
         try lines.append(gpa, line);
     }
 
-    var operatorIndexes = try std.ArrayList(usize).initCapacity(gpa, 1000);
-    defer operatorIndexes.deinit(gpa);
+    var operator_indexes = try std.ArrayList(usize).initCapacity(gpa, 1000);
+    defer operator_indexes.deinit(gpa);
     for (lines.getLast(), 0..) |c, i| {
         if (c == '*' or c == '+') {
-            try operatorIndexes.append(gpa, i);
+            try operator_indexes.append(gpa, i);
         }
     }
-    try operatorIndexes.append(gpa, lines.getLast().len + 1);
+    try operator_indexes.append(gpa, lines.getLast().len + 1);
 
     var result: usize = 0;
-    var windowIter = std.mem.window(usize, operatorIndexes.items, 2, 1);
+    var windowIter = std.mem.window(usize, operator_indexes.items, 2, 1);
     while (windowIter.next()) |window| {
         const start = window[0];
         const end = window[1] - 1;
