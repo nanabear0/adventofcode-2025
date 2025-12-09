@@ -51,10 +51,7 @@ fn doesThisLineInsectSomeone(line: [2]Point, vertical_line_segments: *[][2]Point
     return false;
 }
 
-var am: usize = 0;
 fn isRectangleInsidePolygon(rectangle: [2]Point, vertical_line_segments: *[][2]Point, horizontal_line_segments: *[][2]Point) !bool {
-    am += 1;
-    std.debug.print("{}\n", .{am});
     const left = @min(rectangle[0].x, rectangle[1].x);
     const right = @max(rectangle[0].x, rectangle[1].x);
     const top = @min(rectangle[0].y, rectangle[1].y);
