@@ -12,28 +12,15 @@ fn isBetweenTwoNumbers(n: isize, b1: isize, b2: isize) bool {
 }
 
 var point_cache = std.AutoHashMap(Point, bool).init(gpa);
-fn isPointInsidePolygon(point: Point, line_segments: *[][2]Point) !bool {
+fn isPointInsidePolygon(point: Point, vertical_line_segments: *[][2]Point) !bool {
     const b = point_cache.get(point);
     if (b != null) return b.?;
     var rightCast: usize = 0;
     var leftCast: usize = 0;
-    for (line_segments.*) |line_segment| {
-        const is_line_segment_vertical = line_segment[0].x == line_segment[1].x;
-        if (is_line_segment_vertical) {
-            if (!isBetweenTwoNumbers(point.y, line_segment[0].y, line_segment[1].y)) continue;
-            if (point.x == line_segment[0].x) {
-                try point_cache.put(point, true);
-                return true;
-            }
-            if (point.x < line_segment[0].x) rightCast += 1;
-            if (point.x > line_segment[0].x) leftCast += 1;
-        } else {
-            if (!isBetweenTwoNumbers(point.x, line_segment[0].x, line_segment[1].x)) continue;
-            if (point.y == line_segment[0].y) {
-                try point_cache.put(point, true);
-                return true;
-            }
-        }
+    for (vertical_line_segments.*) |line_segment| {
+        if (!isBetweenTwoNumbers(point.y, line_segment[0].y, line_segment[1].y)) continue;
+        if (point.x < line_segment[0].x) rightCast += 1;
+        if (point.x > line_segment[0].x) leftCast += 1;
     }
 
     const result: bool = ((rightCast % 2) == 1) or ((leftCast % 2) == 1);
@@ -41,19 +28,18 @@ fn isPointInsidePolygon(point: Point, line_segments: *[][2]Point) !bool {
     return result;
 }
 
-fn doesThisLineInsectSomeone(line: [2]Point, line_segments: *[][2]Point) !bool {
+fn doesThisLineInsectSomeone(line: [2]Point, vertical_line_segments: *[][2]Point, horizontal_line_segments: *[][2]Point) !bool {
     const is_line_vertical = line[0].x == line[0].x;
-    for (line_segments.*) |line_segment| {
-        const is_line_segment_vertical = line_segment[0].x == line_segment[1].x;
-        if (is_line_vertical == is_line_segment_vertical) continue;
-
-        if (is_line_segment_vertical) {
+    if (is_line_vertical) {
+        for (vertical_line_segments.*) |line_segment| {
             if (line[0].y > @min(line_segment[0].y, line_segment[1].y) and
                 line[0].y < @max(line_segment[0].y, line_segment[1].y) and
                 line_segment[0].x > @min(line[0].x, line[1].x) and
                 line_segment[0].x < @max(line[0].x, line[1].x))
                 return true;
-        } else {
+        }
+    } else {
+        for (horizontal_line_segments.*) |line_segment| {
             if (line[0].x > @min(line_segment[0].x, line_segment[1].x) and
                 line[0].x < @max(line_segment[0].x, line_segment[1].x) and
                 line_segment[0].y > @min(line[0].y, line[1].y) and
@@ -66,27 +52,27 @@ fn doesThisLineInsectSomeone(line: [2]Point, line_segments: *[][2]Point) !bool {
 }
 
 var am: usize = 0;
-fn isRectangleInsidePolygon(rectangle: [2]Point, line_segments: *[][2]Point) !bool {
+fn isRectangleInsidePolygon(rectangle: [2]Point, vertical_line_segments: *[][2]Point, horizontal_line_segments: *[][2]Point) !bool {
     am += 1;
     std.debug.print("{}\n", .{am});
     const left = @min(rectangle[0].x, rectangle[1].x);
     const right = @max(rectangle[0].x, rectangle[1].x);
     const top = @min(rectangle[0].y, rectangle[1].y);
     const bottom = @max(rectangle[0].y, rectangle[1].y);
-    if (!try isPointInsidePolygon(Point{ .x = rectangle[0].x, .y = rectangle[1].y }, line_segments)) return false;
-    if (!try isPointInsidePolygon(Point{ .x = rectangle[1].x, .y = rectangle[0].y }, line_segments)) return false;
-    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = left, .y = top }, Point{ .x = left, .y = bottom } }, line_segments)) return false;
-    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = left, .y = top }, Point{ .x = right, .y = top } }, line_segments)) return false;
-    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = right, .y = bottom }, Point{ .x = right, .y = top } }, line_segments)) return false;
-    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = right, .y = bottom }, Point{ .x = left, .y = bottom } }, line_segments)) return false;
+    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = left, .y = top }, Point{ .x = left, .y = bottom } }, vertical_line_segments, horizontal_line_segments)) return false;
+    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = left, .y = top }, Point{ .x = right, .y = top } }, vertical_line_segments, horizontal_line_segments)) return false;
+    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = right, .y = bottom }, Point{ .x = right, .y = top } }, vertical_line_segments, horizontal_line_segments)) return false;
+    if (try doesThisLineInsectSomeone([2]Point{ Point{ .x = right, .y = bottom }, Point{ .x = left, .y = bottom } }, vertical_line_segments, horizontal_line_segments)) return false;
+    if (!try isPointInsidePolygon(Point{ .x = rectangle[0].x, .y = rectangle[1].y }, vertical_line_segments)) return false;
+    if (!try isPointInsidePolygon(Point{ .x = rectangle[1].x, .y = rectangle[0].y }, vertical_line_segments)) return false;
 
     for (@intCast(left + 1)..@intCast(right)) |x| {
-        if (!try isPointInsidePolygon(Point{ .x = @intCast(x), .y = top }, line_segments)) return false;
-        if (!try isPointInsidePolygon(Point{ .x = @intCast(x), .y = bottom }, line_segments)) return false;
+        if (!try isPointInsidePolygon(Point{ .x = @intCast(x), .y = top }, vertical_line_segments)) return false;
+        if (!try isPointInsidePolygon(Point{ .x = @intCast(x), .y = bottom }, vertical_line_segments)) return false;
     }
     for (@intCast(top + 1)..@intCast(bottom)) |y| {
-        if (!try isPointInsidePolygon(Point{ .x = left, .y = @intCast(y) }, line_segments)) return false;
-        if (!try isPointInsidePolygon(Point{ .x = right, .y = @intCast(y) }, line_segments)) return false;
+        if (!try isPointInsidePolygon(Point{ .x = left, .y = @intCast(y) }, vertical_line_segments)) return false;
+        if (!try isPointInsidePolygon(Point{ .x = right, .y = @intCast(y) }, vertical_line_segments)) return false;
     }
 
     return true;
@@ -101,7 +87,8 @@ fn compareSize(_: void, a: [2]Point, b: [2]Point) std.math.Order {
 fn part02() !void {
     var lines_iter = std.mem.splitScalar(u8, input, '\n');
     var points = try std.ArrayList(Point).initCapacity(gpa, 10);
-    var line_segments = try std.ArrayList([2]Point).initCapacity(gpa, 10);
+    var vertical_line_segments = try std.ArrayList([2]Point).initCapacity(gpa, 10);
+    var horizontal_line_segments = try std.ArrayList([2]Point).initCapacity(gpa, 10);
     while (lines_iter.next()) |line| {
         const delim: usize = std.mem.indexOfScalar(u8, line, ',') orelse unreachable;
         try points.append(gpa, Point{
@@ -116,15 +103,39 @@ fn part02() !void {
             try rectangles.add([2]Point{ p1, p2 });
         }
     }
-    try line_segments.append(gpa, [2]Point{ points.items[0], points.items[points.items.len - 1] });
+    if (points.items[0].x == points.items[points.items.len - 1].x) {
+        try vertical_line_segments.append(gpa, [2]Point{ points.items[0], points.items[points.items.len - 1] });
+    } else {
+        try horizontal_line_segments.append(gpa, [2]Point{ points.items[0], points.items[points.items.len - 1] });
+    }
+
+    for (vertical_line_segments.items) |line_segment| {
+        const min: usize = @intCast(@min(line_segment[0].y, line_segment[1].y));
+        const max: usize = @intCast(@max(line_segment[0].y, line_segment[1].y));
+        for (min..max + 1) |y| {
+            try point_cache.put(Point{ .x = line_segment[0].x, .y = @intCast(y) }, true);
+        }
+    }
+
+    for (horizontal_line_segments.items) |line_segment| {
+        const min: usize = @intCast(@min(line_segment[0].x, line_segment[1].x));
+        const max: usize = @intCast(@max(line_segment[0].x, line_segment[1].x));
+        for (min..max + 1) |x| {
+            try point_cache.put(Point{ .x = @intCast(x), .y = line_segment[0].y }, true);
+        }
+    }
     var window_iter = std.mem.window(Point, points.items, 2, 1);
     while (window_iter.next()) |window| {
-        try line_segments.append(gpa, [2]Point{ window[0], window[1] });
+        if (window[0].x == window[1].x) {
+            try vertical_line_segments.append(gpa, [2]Point{ window[0], window[1] });
+        } else {
+            try horizontal_line_segments.append(gpa, [2]Point{ window[0], window[1] });
+        }
     }
 
     while (rectangles.count() > 0) {
         const rectangle = rectangles.remove();
-        if (try isRectangleInsidePolygon(rectangle, &line_segments.items)) {
+        if (try isRectangleInsidePolygon(rectangle, &vertical_line_segments.items, &horizontal_line_segments.items)) {
             const size: isize = @intCast((@abs(rectangle[0].x - rectangle[1].x) + 1) * (@abs(rectangle[0].y - rectangle[1].y) + 1));
             std.debug.print("part 02: {}\n", .{size});
             break;
