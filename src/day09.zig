@@ -32,16 +32,16 @@ fn doesThisLineInsectSomeone(line: [2]Point, vertical_line_segments: *[][2]Point
     const is_line_vertical = line[0].x == line[0].x;
     if (is_line_vertical) {
         for (vertical_line_segments.*) |line_segment| {
-            if (line[0].y > @min(line_segment[0].y, line_segment[1].y) and
-                line[0].y < @max(line_segment[0].y, line_segment[1].y) and
+            if (line[0].y >= @min(line_segment[0].y, line_segment[1].y) and
+                line[0].y <= @max(line_segment[0].y, line_segment[1].y) and
                 line_segment[0].x > @min(line[0].x, line[1].x) and
                 line_segment[0].x < @max(line[0].x, line[1].x))
                 return true;
         }
     } else {
         for (horizontal_line_segments.*) |line_segment| {
-            if (line[0].x > @min(line_segment[0].x, line_segment[1].x) and
-                line[0].x < @max(line_segment[0].x, line_segment[1].x) and
+            if (line[0].x >= @min(line_segment[0].x, line_segment[1].x) and
+                line[0].x <= @max(line_segment[0].x, line_segment[1].x) and
                 line_segment[0].y > @min(line[0].y, line[1].y) and
                 line_segment[0].y < @max(line[0].y, line[1].y))
                 return true;
