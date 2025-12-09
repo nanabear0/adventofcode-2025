@@ -41,9 +41,7 @@ fn isPointInsidePolygon(point: Point, line_segments: *[][2]Point) !bool {
     return result;
 }
 
-var amcik: usize = 0;
 fn isRectangleInsidePolygon(rectangle: [2]Point, line_segments: *[][2]Point) !bool {
-    amcik += 1;
     const left = @min(rectangle[0].x, rectangle[1].x);
     const right = @max(rectangle[0].x, rectangle[1].x);
     const top = @min(rectangle[0].y, rectangle[1].y);
