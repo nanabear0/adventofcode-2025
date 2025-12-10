@@ -9,6 +9,7 @@ const day06 = @import("./day06.zig").day06;
 const day07 = @import("./day07.zig").day07;
 const day08 = @import("./day08.zig").day08;
 const day09 = @import("./day09.zig").day09;
+const day10 = @import("./day10.zig").day10;
 pub fn main() !void {
     // day01();
     // day02();
@@ -18,5 +19,6 @@ pub fn main() !void {
     // day06();
     // day07();
     // day08();
-    day09();
+    // day09();
+    day10();
 }
